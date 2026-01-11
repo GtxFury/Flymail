@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,22 +13,23 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from '@/components/ui/use-toast';
 import { Mail, Loader2 } from 'lucide-react';
 
-const registerSchema = z.object({
-  name: z.string().optional(),
-  email: z.string().email('Please enter a valid email'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'],
-});
-
-type RegisterForm = z.infer<typeof registerSchema>;
-
 export default function RegisterPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
   const { toast } = useToast();
+
+  const registerSchema = z.object({
+    name: z.string().optional(),
+    email: z.string().email(t('auth.invalidEmail')),
+    password: z.string().min(6, t('auth.passwordMinLength')),
+    confirmPassword: z.string(),
+  }).refine((data) => data.password === data.confirmPassword, {
+    message: t('auth.passwordsNotMatch'),
+    path: ['confirmPassword'],
+  });
+
+  type RegisterForm = z.infer<typeof registerSchema>;
 
   const {
     register,
@@ -42,13 +43,13 @@ export default function RegisterPage() {
     mutationFn: authApi.register,
     onSuccess: (data) => {
       setAuth(data.user, data.token);
-      toast({ title: 'Account created successfully!' });
+      toast({ title: t('auth.accountCreated') });
       navigate('/');
     },
     onError: (error: Error) => {
       toast({
         variant: 'destructive',
-        title: 'Registration failed',
+        title: t('auth.registrationFailed'),
         description: error.message,
       });
     },
@@ -68,22 +69,22 @@ export default function RegisterPage() {
               <Mail className="h-6 w-6 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl">Create an account</CardTitle>
-          <CardDescription>Get started with Flymail</CardDescription>
+          <CardTitle className="text-2xl">{t('auth.createAccount')}</CardTitle>
+          <CardDescription>{t('auth.getStarted')}</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name (optional)</Label>
+              <Label htmlFor="name">{t('auth.nameOptional')}</Label>
               <Input
                 id="name"
                 type="text"
-                placeholder="Your name"
+                placeholder={t('auth.name')}
                 {...register('name')}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('auth.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -95,11 +96,11 @@ export default function RegisterPage() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('auth.password')}</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="Create a password"
+                placeholder="••••••••"
                 {...register('password')}
               />
               {errors.password && (
@@ -107,11 +108,11 @@ export default function RegisterPage() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="Confirm your password"
+                placeholder="••••••••"
                 {...register('confirmPassword')}
               />
               {errors.confirmPassword && (
@@ -128,12 +129,12 @@ export default function RegisterPage() {
               {registerMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              Create account
+              {t('auth.register')}
             </Button>
             <p className="text-sm text-muted-foreground">
-              Already have an account?{' '}
+              {t('auth.alreadyHaveAccount')}{' '}
               <Link to="/login" className="text-primary hover:underline">
-                Sign in
+                {t('auth.login')}
               </Link>
             </p>
           </CardFooter>

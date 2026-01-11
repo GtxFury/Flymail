@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { addressesApi, emailsApi } from '@/lib/api';
 import { cn, formatDate } from '@/lib/utils';
@@ -21,6 +22,7 @@ import {
 } from 'lucide-react';
 
 export default function InboxPage() {
+  const { t } = useTranslation();
   const { addressId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -42,7 +44,7 @@ export default function InboxPage() {
     }),
   });
 
-  const { data: selectedEmail, isLoading: isLoadingEmail } = useQuery({
+  const { data: selectedEmail } = useQuery({
     queryKey: ['email', selectedEmailId],
     queryFn: () => emailsApi.get(selectedEmailId!),
     enabled: !!selectedEmailId,
@@ -63,7 +65,7 @@ export default function InboxPage() {
       queryClient.invalidateQueries({ queryKey: ['emails'] });
       queryClient.invalidateQueries({ queryKey: ['unreadCount'] });
       setSelectedEmailId(null);
-      toast({ title: 'Email deleted' });
+      toast({ title: t('inbox.emailDeleted') });
     },
   });
 
@@ -74,7 +76,7 @@ export default function InboxPage() {
       {/* Sidebar - Address List */}
       <div className="w-64 flex-shrink-0 border rounded-lg bg-card">
         <div className="p-4 border-b">
-          <h2 className="font-semibold">Mailboxes</h2>
+          <h2 className="font-semibold">{t('inbox.mailboxes')}</h2>
         </div>
         <ScrollArea className="h-[calc(100%-57px)]">
           <div className="p-2 space-y-1">
@@ -91,7 +93,7 @@ export default function InboxPage() {
               )}
             >
               <Inbox className="h-4 w-4" />
-              All Inboxes
+              {t('inbox.allInboxes')}
             </button>
             <Separator className="my-2" />
             {addresses?.map((addr: any) => (
@@ -127,7 +129,7 @@ export default function InboxPage() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search emails..."
+              placeholder={t('inbox.searchEmails')}
               className="pl-9"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -142,7 +144,7 @@ export default function InboxPage() {
           ) : emails.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <Inbox className="h-12 w-12 mb-4" />
-              <p>No emails yet</p>
+              <p>{t('inbox.noEmails')}</p>
             </div>
           ) : (
             <div className="divide-y">
@@ -178,7 +180,7 @@ export default function InboxPage() {
                         'text-sm truncate',
                         !email.isRead ? 'font-medium' : 'text-muted-foreground'
                       )}>
-                        {email.subject}
+                        {email.subject || t('inbox.noSubject')}
                       </p>
                       <p className="text-xs text-muted-foreground truncate mt-1">
                         {email.preview}
@@ -214,9 +216,9 @@ export default function InboxPage() {
                   <ChevronLeft className="h-5 w-5" />
                 </Button>
                 <div>
-                  <h2 className="font-semibold">{selectedEmail.subject}</h2>
+                  <h2 className="font-semibold">{selectedEmail.subject || t('inbox.noSubject')}</h2>
                   <p className="text-sm text-muted-foreground">
-                    From: {selectedEmail.fromName ? `${selectedEmail.fromName} <${selectedEmail.fromAddress}>` : selectedEmail.fromAddress}
+                    {t('inbox.from')}: {selectedEmail.fromName ? `${selectedEmail.fromName} <${selectedEmail.fromAddress}>` : selectedEmail.fromAddress}
                   </p>
                 </div>
               </div>
@@ -260,13 +262,13 @@ export default function InboxPage() {
             <ScrollArea className="flex-1 p-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
-                  <span>To: {selectedEmail.toAddress}</span>
+                  <span>{t('inbox.to')}: {selectedEmail.toAddress}</span>
                   <span>{new Date(selectedEmail.receivedAt).toLocaleString()}</span>
                 </div>
                 {selectedEmail.attachments?.length > 0 && (
                   <div className="p-4 rounded-lg bg-muted">
                     <p className="text-sm font-medium mb-2">
-                      Attachments ({selectedEmail.attachments.length})
+                      {t('inbox.attachments')} ({selectedEmail.attachments.length})
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {selectedEmail.attachments.map((att: any) => (
@@ -302,7 +304,7 @@ export default function InboxPage() {
           <div className="flex-1 flex items-center justify-center text-muted-foreground">
             <div className="text-center">
               <Mail className="h-12 w-12 mx-auto mb-4" />
-              <p>Select an email to read</p>
+              <p>{t('inbox.selectEmail')}</p>
             </div>
           </div>
         )}

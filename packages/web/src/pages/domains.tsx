@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { domainsApi, addressesApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Globe, Plus, Trash2, CheckCircle, AlertCircle, Copy, Loader2, Mail } from 'lucide-react';
 
 export default function DomainsPage() {
+  const { t } = useTranslation();
   const [isAddDomainOpen, setIsAddDomainOpen] = useState(false);
   const [isAddAddressOpen, setIsAddAddressOpen] = useState(false);
   const [selectedDomain, setSelectedDomain] = useState<any>(null);
@@ -38,21 +40,21 @@ export default function DomainsPage() {
       setIsAddDomainOpen(false);
       setNewDomain('');
       setSelectedDomain(data);
-      toast({ title: 'Domain added successfully' });
+      toast({ title: t('domains.domainAdded') });
     },
     onError: (error: Error) => {
-      toast({ variant: 'destructive', title: 'Error', description: error.message });
+      toast({ variant: 'destructive', title: t('common.error'), description: error.message });
     },
   });
 
   const verifyDomainMutation = useMutation({
     mutationFn: domainsApi.verify,
-    onSuccess: (data, id) => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['domains'] });
       if (data.verified) {
-        toast({ title: 'Domain verified successfully!' });
+        toast({ title: t('domains.domainVerified') });
       } else {
-        toast({ variant: 'destructive', title: 'Verification failed', description: data.message });
+        toast({ variant: 'destructive', title: t('domains.verificationFailed'), description: data.message });
       }
     },
   });
@@ -61,7 +63,7 @@ export default function DomainsPage() {
     mutationFn: domainsApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['domains'] });
-      toast({ title: 'Domain deleted' });
+      toast({ title: t('domains.domainDeleted') });
     },
   });
 
@@ -72,10 +74,10 @@ export default function DomainsPage() {
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
       setIsAddAddressOpen(false);
       setNewAddress('');
-      toast({ title: 'Address created successfully' });
+      toast({ title: t('addresses.addressCreated') });
     },
     onError: (error: Error) => {
-      toast({ variant: 'destructive', title: 'Error', description: error.message });
+      toast({ variant: 'destructive', title: t('common.error'), description: error.message });
     },
   });
 
@@ -84,13 +86,13 @@ export default function DomainsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['domains'] });
       queryClient.invalidateQueries({ queryKey: ['addresses'] });
-      toast({ title: 'Address deleted' });
+      toast({ title: t('addresses.addressDeleted') });
     },
   });
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast({ title: 'Copied to clipboard' });
+    toast({ title: t('common.copiedToClipboard') });
   };
 
   const { data: domainDetail } = useQuery({
@@ -103,31 +105,31 @@ export default function DomainsPage() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Domains</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t('domains.title')}</h1>
           <p className="text-muted-foreground mt-2">
-            Manage your email domains and addresses
+            {t('domains.subtitle')}
           </p>
         </div>
         <Dialog open={isAddDomainOpen} onOpenChange={setIsAddDomainOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Add Domain
+              {t('domains.addDomain')}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add Domain</DialogTitle>
+              <DialogTitle>{t('domains.addDomain')}</DialogTitle>
               <DialogDescription>
-                Enter your domain name to start receiving emails
+                {t('domains.enterDomain')}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="domain">Domain</Label>
+                <Label htmlFor="domain">{t('domains.title')}</Label>
                 <Input
                   id="domain"
-                  placeholder="example.com"
+                  placeholder={t('domains.domainPlaceholder')}
                   value={newDomain}
                   onChange={(e) => setNewDomain(e.target.value)}
                 />
@@ -139,7 +141,7 @@ export default function DomainsPage() {
                 disabled={!newDomain || createDomainMutation.isPending}
               >
                 {createDomainMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Add Domain
+                {t('domains.addDomain')}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -154,13 +156,13 @@ export default function DomainsPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Globe className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No domains yet</h3>
+            <h3 className="text-lg font-medium mb-2">{t('domains.noDomains')}</h3>
             <p className="text-muted-foreground text-center mb-4">
-              Add your first domain to start receiving emails
+              {t('domains.addFirstDomainDesc')}
             </p>
             <Button onClick={() => setIsAddDomainOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
-              Add Domain
+              {t('domains.addDomain')}
             </Button>
           </CardContent>
         </Card>
@@ -178,24 +180,24 @@ export default function DomainsPage() {
                     {domain.verified ? (
                       <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-green-500/10 text-green-500">
                         <CheckCircle className="h-3 w-3" />
-                        Verified
+                        {t('domains.verified')}
                       </span>
                     ) : (
                       <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-yellow-500/10 text-yellow-500">
                         <AlertCircle className="h-3 w-3" />
-                        Pending
+                        {t('domains.pending')}
                       </span>
                     )}
                   </div>
                 </div>
                 <CardDescription>
-                  {domain._count?.addresses || 0} email addresses
+                  {t('domains.emailAddresses', { count: domain._count?.addresses || 0 })}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {!domain.verified && (
                   <div className="p-4 rounded-lg bg-muted space-y-3">
-                    <p className="text-sm font-medium">Add this MX record to your DNS:</p>
+                    <p className="text-sm font-medium">{t('domains.addMxRecord')}</p>
                     <div className="flex items-center gap-2 p-2 bg-background rounded border text-sm font-mono">
                       <span className="flex-1 truncate">
                         MX @ mail.flymail.local (Priority: 10)
@@ -215,7 +217,7 @@ export default function DomainsPage() {
                       disabled={verifyDomainMutation.isPending}
                     >
                       {verifyDomainMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      Verify MX Record
+                      {t('domains.verifyMxRecord')}
                     </Button>
                   </div>
                 )}
@@ -231,14 +233,14 @@ export default function DomainsPage() {
                     disabled={!domain.verified}
                   >
                     <Plus className="mr-2 h-4 w-4" />
-                    Add Address
+                    {t('domains.addAddress')}
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setSelectedDomain(domain)}
                   >
-                    View Addresses
+                    {t('domains.viewAddresses')}
                   </Button>
                   <Button
                     variant="ghost"
@@ -260,7 +262,7 @@ export default function DomainsPage() {
           <DialogHeader>
             <DialogTitle>{selectedDomain?.domain}</DialogTitle>
             <DialogDescription>
-              Manage email addresses for this domain
+              {t('domains.manageAddresses')}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -278,7 +280,7 @@ export default function DomainsPage() {
                       </span>
                       {addr.catchAll && (
                         <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary">
-                          Catch-all
+                          {t('domains.catchAll')}
                         </span>
                       )}
                     </div>
@@ -299,7 +301,7 @@ export default function DomainsPage() {
               </div>
             ) : (
               <p className="text-center text-muted-foreground py-4">
-                No email addresses yet
+                {t('domains.noAddresses')}
               </p>
             )}
           </div>
@@ -309,7 +311,7 @@ export default function DomainsPage() {
               disabled={!selectedDomain?.verified}
             >
               <Plus className="mr-2 h-4 w-4" />
-              Add Address
+              {t('domains.addAddress')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -319,18 +321,18 @@ export default function DomainsPage() {
       <Dialog open={isAddAddressOpen} onOpenChange={setIsAddAddressOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Email Address</DialogTitle>
+            <DialogTitle>{t('addresses.title')}</DialogTitle>
             <DialogDescription>
-              Create a new email address for {selectedDomain?.domain}
+              {t('addresses.subtitle', { domain: selectedDomain?.domain })}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="address">{t('auth.email')}</Label>
               <div className="flex gap-2">
                 <Input
                   id="address"
-                  placeholder="hello"
+                  placeholder={t('addresses.addressPlaceholder')}
                   value={newAddress}
                   onChange={(e) => setNewAddress(e.target.value)}
                 />
@@ -339,7 +341,7 @@ export default function DomainsPage() {
                 </span>
               </div>
               <p className="text-xs text-muted-foreground">
-                Use * to create a catch-all address
+                {t('addresses.catchAllHint')}
               </p>
             </div>
           </div>
@@ -352,7 +354,7 @@ export default function DomainsPage() {
               disabled={!newAddress || createAddressMutation.isPending}
             >
               {createAddressMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create Address
+              {t('addresses.createAddress')}
             </Button>
           </DialogFooter>
         </DialogContent>

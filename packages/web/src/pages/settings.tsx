@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,23 +12,24 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/use-toast';
-import { Loader2, Sun, Moon, Monitor } from 'lucide-react';
-
-const passwordSchema = z.object({
-  currentPassword: z.string().min(1, 'Current password is required'),
-  newPassword: z.string().min(6, 'Password must be at least 6 characters'),
-  confirmPassword: z.string(),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'],
-});
-
-type PasswordForm = z.infer<typeof passwordSchema>;
+import { Loader2, Sun, Moon, Monitor, Languages } from 'lucide-react';
 
 export default function SettingsPage() {
+  const { t, i18n } = useTranslation();
   const { user } = useAuthStore();
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
+
+  const passwordSchema = z.object({
+    currentPassword: z.string().min(1, t('settings.currentPassword')),
+    newPassword: z.string().min(6, t('auth.passwordMinLength')),
+    confirmPassword: z.string(),
+  }).refine((data) => data.newPassword === data.confirmPassword, {
+    message: t('auth.passwordsNotMatch'),
+    path: ['confirmPassword'],
+  });
+
+  type PasswordForm = z.infer<typeof passwordSchema>;
 
   const {
     register,
@@ -41,13 +43,13 @@ export default function SettingsPage() {
   const updatePasswordMutation = useMutation({
     mutationFn: authApi.updatePassword,
     onSuccess: () => {
-      toast({ title: 'Password updated successfully' });
+      toast({ title: t('settings.passwordUpdated') });
       reset();
     },
     onError: (error: Error) => {
       toast({
         variant: 'destructive',
-        title: 'Error',
+        title: t('common.error'),
         description: error.message,
       });
     },
@@ -61,45 +63,76 @@ export default function SettingsPage() {
   };
 
   const themes = [
-    { value: 'light', label: 'Light', icon: Sun },
-    { value: 'dark', label: 'Dark', icon: Moon },
-    { value: 'system', label: 'System', icon: Monitor },
+    { value: 'light', label: t('settings.theme.light'), icon: Sun },
+    { value: 'dark', label: t('settings.theme.dark'), icon: Moon },
+    { value: 'system', label: t('settings.theme.system'), icon: Monitor },
   ] as const;
+
+  const languages = [
+    { value: 'en', label: 'English' },
+    { value: 'zh', label: '中文' },
+  ];
 
   return (
     <div className="space-y-8 max-w-2xl">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('settings.title')}</h1>
         <p className="text-muted-foreground mt-2">
-          Manage your account settings and preferences
+          {t('settings.subtitle')}
         </p>
       </div>
 
       {/* Account Info */}
       <Card>
         <CardHeader>
-          <CardTitle>Account</CardTitle>
-          <CardDescription>Your account information</CardDescription>
+          <CardTitle>{t('settings.account')}</CardTitle>
+          <CardDescription>{t('settings.accountInfo')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-2">
-            <Label>Email</Label>
+            <Label>{t('auth.email')}</Label>
             <Input value={user?.email || ''} disabled />
           </div>
           {user?.name && (
             <div className="grid gap-2">
-              <Label>Name</Label>
+              <Label>{t('auth.name')}</Label>
               <Input value={user.name} disabled />
             </div>
           )}
         </CardContent>
       </Card>
 
+      {/* Language */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('settings.language')}</CardTitle>
+          <CardDescription>{t('settings.selectLanguage')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            {languages.map((lang) => (
+              <button
+                key={lang.value}
+                onClick={() => i18n.changeLanguage(lang.value)}
+                className={`flex items-center justify-center gap-2 p-4 rounded-lg border-2 transition-colors ${
+                  i18n.language === lang.value
+                    ? 'border-primary bg-primary/5'
+                    : 'border-transparent bg-muted hover:bg-muted/80'
+                }`}
+              >
+                <Languages className="h-5 w-5" />
+                <span className="font-medium">{lang.label}</span>
+              </button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Theme */}
       <Card>
         <CardHeader>
-          <CardTitle>Appearance</CardTitle>
-          <CardDescription>Customize how Flymail looks</CardDescription>
+          <CardTitle>{t('settings.appearance')}</CardTitle>
+          <CardDescription>{t('settings.customizeLook')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
@@ -124,13 +157,13 @@ export default function SettingsPage() {
       {/* Change Password */}
       <Card>
         <CardHeader>
-          <CardTitle>Change Password</CardTitle>
-          <CardDescription>Update your password</CardDescription>
+          <CardTitle>{t('settings.changePassword')}</CardTitle>
+          <CardDescription>{t('settings.updatePassword')}</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
             <div className="grid gap-2">
-              <Label htmlFor="currentPassword">Current Password</Label>
+              <Label htmlFor="currentPassword">{t('settings.currentPassword')}</Label>
               <Input
                 id="currentPassword"
                 type="password"
@@ -144,7 +177,7 @@ export default function SettingsPage() {
             </div>
             <Separator />
             <div className="grid gap-2">
-              <Label htmlFor="newPassword">New Password</Label>
+              <Label htmlFor="newPassword">{t('settings.newPassword')}</Label>
               <Input
                 id="newPassword"
                 type="password"
@@ -157,7 +190,7 @@ export default function SettingsPage() {
               )}
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Label htmlFor="confirmPassword">{t('settings.confirmNewPassword')}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
@@ -178,7 +211,7 @@ export default function SettingsPage() {
               {updatePasswordMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              Update Password
+              {t('settings.changePassword')}
             </Button>
           </div>
         </form>

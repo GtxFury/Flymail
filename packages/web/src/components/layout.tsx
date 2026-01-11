@@ -1,4 +1,5 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/auth';
 import { useTheme } from '@/components/theme-provider';
 import { Button } from '@/components/ui/button';
@@ -21,24 +22,31 @@ import {
   Sun,
   Moon,
   Monitor,
+  Languages,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/domains', icon: Globe, label: 'Domains' },
-  { to: '/inbox', icon: Mail, label: 'Inbox' },
-  { to: '/settings', icon: Settings, label: 'Settings' },
-];
-
 export default function Layout() {
+  const { t, i18n } = useTranslation();
   const { user, logout } = useAuthStore();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
 
+  const navItems = [
+    { to: '/', icon: LayoutDashboard, label: t('nav.dashboard') },
+    { to: '/domains', icon: Globe, label: t('nav.domains') },
+    { to: '/inbox', icon: Mail, label: t('nav.inbox') },
+    { to: '/settings', icon: Settings, label: t('nav.settings') },
+  ];
+
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'zh' ? 'en' : 'zh';
+    i18n.changeLanguage(newLang);
   };
 
   const getInitials = (name?: string, email?: string) => {
@@ -98,27 +106,32 @@ export default function Layout() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-56">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{t('nav.myAccount')}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setTheme('light')}>
                 <Sun className="mr-2 h-4 w-4" />
-                Light
-                {theme === 'light' && <span className="ml-auto">active</span>}
+                {t('settings.theme.light')}
+                {theme === 'light' && <span className="ml-auto text-xs">✓</span>}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTheme('dark')}>
                 <Moon className="mr-2 h-4 w-4" />
-                Dark
-                {theme === 'dark' && <span className="ml-auto">active</span>}
+                {t('settings.theme.dark')}
+                {theme === 'dark' && <span className="ml-auto text-xs">✓</span>}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setTheme('system')}>
                 <Monitor className="mr-2 h-4 w-4" />
-                System
-                {theme === 'system' && <span className="ml-auto">active</span>}
+                {t('settings.theme.system')}
+                {theme === 'system' && <span className="ml-auto text-xs">✓</span>}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={toggleLanguage}>
+                <Languages className="mr-2 h-4 w-4" />
+                {i18n.language === 'zh' ? 'English' : '中文'}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
-                Log out
+                {t('auth.logout')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

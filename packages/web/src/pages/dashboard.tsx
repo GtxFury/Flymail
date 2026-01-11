@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { domainsApi, addressesApi, emailsApi } from '@/lib/api';
@@ -6,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Mail, Globe, Inbox, Plus, ArrowRight } from 'lucide-react';
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
+
   const { data: domains } = useQuery({
     queryKey: ['domains'],
     queryFn: domainsApi.list,
@@ -23,21 +26,21 @@ export default function DashboardPage() {
 
   const stats = [
     {
-      title: 'Total Domains',
+      title: t('dashboard.totalDomains'),
       value: domains?.length || 0,
       icon: Globe,
       color: 'text-blue-500',
       bgColor: 'bg-blue-500/10',
     },
     {
-      title: 'Email Addresses',
+      title: t('dashboard.emailAddresses'),
       value: addresses?.length || 0,
       icon: Mail,
       color: 'text-green-500',
       bgColor: 'bg-green-500/10',
     },
     {
-      title: 'Unread Emails',
+      title: t('dashboard.unreadEmails'),
       value: unreadData?.unreadCount || 0,
       icon: Inbox,
       color: 'text-orange-500',
@@ -48,9 +51,9 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('dashboard.title')}</h1>
         <p className="text-muted-foreground mt-2">
-          Welcome to Flymail. Manage your email domains and addresses.
+          {t('dashboard.subtitle')}
         </p>
       </div>
 
@@ -77,9 +80,9 @@ export default function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Get Started</CardTitle>
+            <CardTitle>{t('dashboard.getStarted')}</CardTitle>
             <CardDescription>
-              Add your first domain to start receiving emails
+              {t('dashboard.addFirstDomain')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -87,12 +90,12 @@ export default function DashboardPage() {
               <div className="text-center py-6">
                 <Globe className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <p className="text-muted-foreground mb-4">
-                  No domains configured yet
+                  {t('dashboard.noDomains')}
                 </p>
                 <Button asChild>
                   <Link to="/domains">
                     <Plus className="mr-2 h-4 w-4" />
-                    Add Domain
+                    {t('domains.addDomain')}
                   </Link>
                 </Button>
               </div>
@@ -114,14 +117,14 @@ export default function DashboardPage() {
                           : 'bg-yellow-500/10 text-yellow-500'
                       }`}
                     >
-                      {domain.verified ? 'Verified' : 'Pending'}
+                      {domain.verified ? t('dashboard.verified') : t('dashboard.pending')}
                     </span>
                   </div>
                 ))}
                 {domains.length > 3 && (
                   <Button variant="ghost" className="w-full" asChild>
                     <Link to="/domains">
-                      View all domains
+                      {t('dashboard.viewAllDomains')}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
@@ -133,9 +136,9 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Recent Emails</CardTitle>
+            <CardTitle>{t('dashboard.recentEmails')}</CardTitle>
             <CardDescription>
-              Your latest incoming messages
+              {t('dashboard.checkInbox')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -148,17 +151,17 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <p className="font-medium">
-                        {unreadData?.unreadCount} unread messages
+                        {t('dashboard.unreadMessages', { count: unreadData?.unreadCount })}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Check your inbox
+                        {t('dashboard.checkInbox')}
                       </p>
                     </div>
                   </div>
                 </div>
                 <Button className="w-full" asChild>
                   <Link to="/inbox">
-                    Go to Inbox
+                    {t('dashboard.goToInbox')}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
@@ -167,7 +170,7 @@ export default function DashboardPage() {
               <div className="text-center py-6">
                 <Inbox className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">
-                  No unread emails
+                  {t('dashboard.noUnreadEmails')}
                 </p>
               </div>
             )}

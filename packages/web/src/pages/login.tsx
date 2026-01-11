@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,18 +13,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from '@/components/ui/use-toast';
 import { Mail, Loader2 } from 'lucide-react';
 
-const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email'),
-  password: z.string().min(1, 'Password is required'),
-});
-
-type LoginForm = z.infer<typeof loginSchema>;
-
 export default function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { setAuth } = useAuthStore();
   const { toast } = useToast();
-  const [showPassword, setShowPassword] = useState(false);
+
+  const loginSchema = z.object({
+    email: z.string().email(t('auth.invalidEmail')),
+    password: z.string().min(1, t('auth.password')),
+  });
+
+  type LoginForm = z.infer<typeof loginSchema>;
 
   const {
     register,
@@ -38,13 +38,13 @@ export default function LoginPage() {
     mutationFn: authApi.login,
     onSuccess: (data) => {
       setAuth(data.user, data.token);
-      toast({ title: 'Welcome back!' });
+      toast({ title: t('auth.welcomeBack') });
       navigate('/');
     },
     onError: (error: Error) => {
       toast({
         variant: 'destructive',
-        title: 'Login failed',
+        title: t('auth.loginFailed'),
         description: error.message,
       });
     },
@@ -63,13 +63,13 @@ export default function LoginPage() {
               <Mail className="h-6 w-6 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl">Welcome back</CardTitle>
-          <CardDescription>Sign in to your Flymail account</CardDescription>
+          <CardTitle className="text-2xl">{t('auth.welcomeBack')}</CardTitle>
+          <CardDescription>{t('auth.signInToAccount')}</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t('auth.email')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -81,11 +81,11 @@ export default function LoginPage() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('auth.password')}</Label>
               <Input
                 id="password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Enter your password"
+                type="password"
+                placeholder="••••••••"
                 {...register('password')}
               />
               {errors.password && (
@@ -102,12 +102,12 @@ export default function LoginPage() {
               {loginMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              Sign in
+              {t('auth.login')}
             </Button>
             <p className="text-sm text-muted-foreground">
-              Don't have an account?{' '}
+              {t('auth.dontHaveAccount')}{' '}
               <Link to="/register" className="text-primary hover:underline">
-                Sign up
+                {t('auth.register')}
               </Link>
             </p>
           </CardFooter>
