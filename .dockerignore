@@ -1,0 +1,14 @@
+node_modules
+dist
+build
+*.db
+*.db-journal
+.env
+.env.local
+.git
+.gitignore
+*.md
+.vscode
+.idea
+uploads/*
+data/*

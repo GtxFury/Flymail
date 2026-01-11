@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: packages/server/Dockerfile
+    container_name: flymail-server
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+      - "25:25"
+    volumes:
+      - ./data:/app/packages/server/data
+      - ./uploads:/app/packages/server/uploads
+    environment:
+      - DATABASE_URL=file:./data/flymail.db
+      - JWT_SECRET=${JWT_SECRET:-change-this-secret-key}
+      - PORT=3001
+      - HOST=0.0.0.0
+      - SMTP_PORT=25
+      - SMTP_HOST=0.0.0.0
+      - MX_HOSTNAME=${MX_HOSTNAME:-mail.example.com}
+    networks:
+      - flymail
+
+  web:
+    build:
+      context: .
+      dockerfile: packages/web/Dockerfile
+    container_name: flymail-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    networks:
+      - flymail
+
+networks:
+  flymail:
+    driver: bridge
