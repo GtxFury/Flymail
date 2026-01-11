@@ -24,6 +24,13 @@ app.get('/api/health', (_, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Public config
+app.get('/api/config', (_, res) => {
+  res.json({
+    mxHostname: process.env.MX_HOSTNAME || 'mail.flymail.local',
+  });
+});
+
 // Routes
 app.use('/api/auth', authRouter);
 app.use('/api/domains', domainsRouter);

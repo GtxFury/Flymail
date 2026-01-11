@@ -141,3 +141,8 @@ export const emailsApi = {
 
   unreadCount: () => request<{ unreadCount: number }>('/emails/stats/unread'),
 };
+
+// Config
+export const configApi = {
+  get: () => request<{ mxHostname: string }>('/config'),
+};

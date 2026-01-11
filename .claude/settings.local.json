@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install)",
+      "Bash(pnpm approve-builds:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(npx prisma@5.14.0 generate:*)",
+      "Bash(pnpm exec prisma generate:*)",
+      "Bash(pnpm exec prisma db push:*)",
+      "Bash(timeout:*)",
+      "Bash(ping:*)",
+      "Bash(pnpm dev)",
+      "Bash(pnpm exec tsx:*)",
+      "Bash(pnpm exec vite:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nInitial commit: Flymail email receiving system\n\nFeatures:\n- User authentication \\(register/login with JWT\\)\n- Domain management with MX record verification\n- Email address management \\(including catch-all\\)\n- SMTP server for receiving emails\n- Modern React frontend with shadcn/ui\n- Dark/light theme support\n- SQLite database with Prisma ORM\n\nTech stack:\n- Frontend: React + Vite + TailwindCSS + shadcn/ui\n- Backend: Express + TypeScript + Prisma\n- SMTP: smtp-server + mailparser\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

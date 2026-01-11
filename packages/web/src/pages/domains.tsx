@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { domainsApi, addressesApi } from '@/lib/api';
+import { domainsApi, addressesApi, configApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,6 +32,13 @@ export default function DomainsPage() {
     queryKey: ['domains'],
     queryFn: domainsApi.list,
   });
+
+  const { data: config } = useQuery({
+    queryKey: ['config'],
+    queryFn: configApi.get,
+  });
+
+  const mxHostname = config?.mxHostname || 'mail.flymail.local';
 
   const createDomainMutation = useMutation({
     mutationFn: domainsApi.create,
@@ -200,12 +207,12 @@ export default function DomainsPage() {
                     <p className="text-sm font-medium">{t('domains.addMxRecord')}</p>
                     <div className="flex items-center gap-2 p-2 bg-background rounded border text-sm font-mono">
                       <span className="flex-1 truncate">
-                        MX @ mail.flymail.local (Priority: 10)
+                        MX @ {mxHostname} (Priority: 10)
                       </span>
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => copyToClipboard('mail.flymail.local')}
+                        onClick={() => copyToClipboard(mxHostname)}
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
