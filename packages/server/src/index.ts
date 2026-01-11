@@ -10,12 +10,11 @@ import { errorHandler } from './middleware/error.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const HOST = process.env.HOST || '0.0.0.0';
 
 // Middleware
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? process.env.FRONTEND_URL
-    : 'http://localhost:5173',
+  origin: process.env.FRONTEND_URL || true,
   credentials: true,
 }));
 app.use(express.json());
@@ -35,8 +34,8 @@ app.use('/api/emails', emailsRouter);
 app.use(errorHandler);
 
 // Start servers
-app.listen(PORT, () => {
-  console.log(`API server running on http://localhost:${PORT}`);
+app.listen(Number(PORT), HOST, () => {
+  console.log(`API server running on http://${HOST}:${PORT}`);
 });
 
 // Start SMTP server
